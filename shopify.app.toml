@@ -1,0 +1,37 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "6b3ae84447781284d6f448cf4fe72441"
+application_url = "https://metropolitan-fancy-coated-failures.trycloudflare.com"
+embedded = true
+name = "AddressEase"
+handle = "addressease"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products, write_products, read_orders, write_orders, read_customers, write_customers, read_customer_events, read_content"
+
+[auth]
+redirect_urls = [
+  "https://metropolitan-fancy-coated-failures.trycloudflare.com/auth/callback",
+  "https://metropolitan-fancy-coated-failures.trycloudflare.com/auth/shopify/callback",
+  "https://metropolitan-fancy-coated-failures.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = true
+
+[build]
+dev_store_url = "abhishek-dev-storee.myshopify.com"
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
