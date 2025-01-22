@@ -74,7 +74,7 @@ export { address_btn_edit };
 // Edit Address Button Component
 function EditAddressButton() {
 
-  const app_url = 'https://metropolitan-fancy-coated-failures.trycloudflare.com';  
+  const app_url = 'https://hiring-statistics-te-holiday.trycloudflare.com';  
   const {query} = useApi();
 
   // useEffect(() => {

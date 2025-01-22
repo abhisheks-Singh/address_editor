@@ -33,6 +33,7 @@
     "@shopify/polaris": "^12.27.0",
     "@shopify/shopify-app-remix": "^3.4.0",
     "@shopify/shopify-app-session-storage-prisma": "^5.1.5",
+    "@shopify/ui-extensions-react": "^2025.1.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "isbot": "^5.1.0",
