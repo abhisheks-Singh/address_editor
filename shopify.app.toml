@@ -1,37 +1,42 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "6b3ae84447781284d6f448cf4fe72441"
-application_url = "https://hiring-statistics-te-holiday.trycloudflare.com"
+application_url = "https://di-consultancy-transform-peninsula.trycloudflare.com"
 embedded = true
 name = "AddressEase"
 handle = "addressease"
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "abhishek-dev-storee.myshopify.com"
+include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-01"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/scopes_update" ]
+  uri = "https://somerset-biological-quiz-moments.trycloudflare.com/webhooks/app/scopes_update"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/uninstalled" ]
+  uri = "https://somerset-biological-quiz-moments.trycloudflare.com/webhooks/app/uninstalled"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products, write_products, read_orders, write_orders, read_customers, write_customers, read_customer_events, read_content"
+scopes = "read_content,read_customer_events,read_customers,read_orders,read_products,write_customers,write_orders,write_products"
 
 [auth]
 redirect_urls = [
-  "https://hiring-statistics-te-holiday.trycloudflare.com/auth/callback",
-  "https://hiring-statistics-te-holiday.trycloudflare.com/auth/shopify/callback",
-  "https://hiring-statistics-te-holiday.trycloudflare.com/api/auth/callback"
+  "https://di-consultancy-transform-peninsula.trycloudflare.com/auth/callback",
+  "https://di-consultancy-transform-peninsula.trycloudflare.com/auth/shopify/callback",
+  "https://di-consultancy-transform-peninsula.trycloudflare.com/api/auth/callback"
 ]
+
+[app_proxy]
+url = "https://di-consultancy-transform-peninsula.trycloudflare.com/api"
+subpath = "proxy"
+prefix = "apps"
 
 [pos]
 embedded = true
-
-[build]
-dev_store_url = "abhishek-dev-storee.myshopify.com"
-automatically_update_urls_on_dev = true
-include_config_on_deploy = true

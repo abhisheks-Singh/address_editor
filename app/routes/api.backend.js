@@ -54,7 +54,7 @@ export async function action({ request }) {
         const { shop, orderId, address1, city, state, country, zip, first_name, last_name } = body;
         
         const access_token = await getAccessToken(shop); 
-        
+
         console.log('access token get', access_token);
         
         if (!shop || !orderId) {
@@ -103,8 +103,8 @@ export async function action({ request }) {
             );
         }
 
-        return json({ success: true, order: data.data.orderUpdate.order });
+        return Response.json({ success: true, order: data.data.orderUpdate.order });
     } catch (error) {
-        return json({ error: error.message }, { status: 500 });
+        return Response.json({ error: error.message }, { status: 500 });
     }
 }

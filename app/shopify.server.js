@@ -23,8 +23,8 @@ const shopify = shopifyApp({
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
+  
 });
-
 export default shopify;
 export const apiVersion = ApiVersion.October24;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
@@ -33,3 +33,7 @@ export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
+// export async function getAccessToken(request) {
+//     const session = await sessionStorage.loadSession(request.headers.get('Cookie'));
+//     return session.get('accessToken'); // Adjust based on how you store the token
+// }

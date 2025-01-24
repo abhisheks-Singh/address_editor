@@ -29,4 +29,29 @@ model Session {
   locale        String?
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
+  settings      ShopSettings?
+}
+
+model ShopSettings {
+  id                       Int      @id @default(autoincrement())
+  shop                     String   @unique
+  enableApp                Boolean
+  allowNoteChange          Boolean
+  allowEmailChange         Boolean
+  allowCountryChange       Boolean
+  allowProvinceChange      Boolean
+  allowCityChange          Boolean
+  allowZipCodeChange       Boolean
+  disallowPOBox           Boolean
+  restrictEditingTag       String?
+  disableEditingTag        String?
+  autoTagUpdatedOrder      Boolean
+  sendEmailNotification    Boolean
+  syncToShipStation        Boolean
+  shipStationApiKey        String?
+  shipStationApiSecret     String?
+  allowOrdersEdit          String
+  disallowOrdersEdit       String
+  shipStationApiSecretKey   String?
+  session              Session  @relation(fields: [shop], references: [shop]) 
 }

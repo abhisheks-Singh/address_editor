@@ -74,7 +74,7 @@ export { address_btn_edit };
 // Edit Address Button Component
 function EditAddressButton() {
 
-  const app_url = 'https://hiring-statistics-te-holiday.trycloudflare.com';  
+  const app_url = 'https://di-consultancy-transform-peninsula.trycloudflare.com';  
   const {query} = useApi();
 
   // useEffect(() => {
@@ -140,6 +140,32 @@ function EditAddressButton() {
     orderId: order.id,
     shop: shop.myshopifyDomain
   });
+
+  const [editableFields, setEditableFields] = useState({});
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${app_url}/api/settings_new?shop=${shop.myshopifyDomain}`); // using this getting cors error : https://${shop.myshopifyDomain}/apps/proxy/settings_new
+      const data = await response.json();
+      console.log('checking data  ', data);
+      setEditableFields({
+        email: data.allowEmailChange, 
+        city: data.allowCityChange,
+        state: data.allowProvinceChange,
+        zip: data.allowZipCodeChange,
+        phone: true // Assuming phone is always editable
+      });
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+
+
 
   const handleInputChange = (name, value) => {
     console.log(`name: ${name}, value: ${value}`);
@@ -224,6 +250,7 @@ function EditAddressButton() {
               name="email"
               value={formData.email}
               onChange={(value) => handleInputChange('email', value)}
+              disabled={!editableFields.email}
             />
           </View>
   
@@ -252,6 +279,7 @@ function EditAddressButton() {
               name="company"
               value={formData.company}
               onChange={(value)=> handleInputChange('company', value)}
+
             />
           </View>
   
@@ -271,6 +299,7 @@ function EditAddressButton() {
                 name="city"
                 value={formData.city}
                 onChange={(value)=> handleInputChange('city', value)}
+                attribute_data={editableFields.city}
               />
             </View>
             <View padding="base">
@@ -279,6 +308,7 @@ function EditAddressButton() {
                 name="state"
                 value={formData.state}
                 onChange={(value)=> handleInputChange('state', value)}
+                disabled={!editableFields.state}
               />
             </View>
             <View padding="base">
@@ -287,6 +317,7 @@ function EditAddressButton() {
                 name="zip"
                 value={formData.zip}
                 onChange={(value)=> handleInputChange('zip', value)}
+                disabled={!editableFields.zip}
               />
             </View>
           </InlineLayout>
@@ -297,6 +328,7 @@ function EditAddressButton() {
               name="phone"
               value={formData.phone}
               onChange={(value)=> handleInputChange('phone', value)}
+
             />
           </View>
   
