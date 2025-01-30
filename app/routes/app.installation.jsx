@@ -1,129 +1,126 @@
-import pkg from '@shopify/polaris';
-const { Page, Card, Text, CalloutCard, Divider, BlockStack } = pkg;
+import {
+  Page,
+  Layout,
+  Card,
+  TextField,
+  Button,
+  BlockStack,
+  InlineStack,
+  Grid,
+  LegacyCard,
+  InlineGrid,
+  Box,
+  Text,
+  Form,
+  Icon,
+  OptionList,
+  Popover,
+  Modal,
+  Link,
+} from "@shopify/polaris";
+import './assets/custom.css'
+import enableAddressEditorImage from './assets/enable-address-editor.png';
+import thankyouPage from './assets/thankyou-page.png'
+import { useLoaderData } from "@remix-run/react";
+
+export const loader = async ({ request }) => {
+  const url = new URL(request.url);
+  const storeDomain = url.hostname; // Extracts the domain only
+
+  return  storeDomain;
+};
 
 export default function InstallationPage() {
+
+  const { storeDomain } = useLoaderData();
+  // const storeDomain = window.location.href; // e.g., "abhishek-dev-storee.myshopify.com"
+  // const designPageUrl = `https://${storeDomain}/admin/apps/addressease/app/design`;
+  console.log('store domain ', storeDomain)
+
+
   return (
-    <Page title="Installation">
-      <CalloutCard
-        title="Installation Overview"
-        primaryAction={{
-          content: 'Contact Support',
-          url: 'mailto:abhishek.singh@centire.in',
+    <Box class="main-container-installation margin-left-main">
+      <h1
+        style={{
+          fontSize: "22px",
+          fontWeight: "bold",
+          paddingTop: "15px",
         }}
       >
-        <Text as="p">
-          This one-time setup will take around 10 minutes. After the setup, your customers can edit their email and shipping address on the order status (thank you) page, and they can view the edit address link in the order detail page from their account.
-        </Text>
-        <Text as="p">
-          If you are not confident to perform the installation steps, you can email me at <a href="mailto:abhishek.singh@centire.in">abhishek.singh@centire.in</a> and I will get back to you as soon as I can, to help you perform the installation step (for free).
-        </Text>
-      </CalloutCard>
+        Installation
+      </h1>
+      <br />
+      <p className="para para-blue">
+        This one-time setup will take around 10 minutes. After the setup, your
+        <strong>
+          {" "}
+          customers can edit their email and shipping address on the order
+          status (thank you) page
+        </strong>
+        , and they can view the edit address link in the order detail page from
+        their account.
+        <br /> <br/> 
+        If you are not confident to perform the installation steps, you can
+        email me at <strong>abhishek.singh@centire.in</strong> and I will get
+        back to you as soon as I can, to help you perform the installation step
+        (for free).
+      </p>
+      <br /> 
+      <p class="font-bold">Step 1: Enable the app</p>
+      <p class="font-bold">Step 1a: Checkout Extensibility widget</p>
+      <p class="font-bold">
+        Step 2: Add a link to the customer order detail page (Optional)
+      </p>
+      <p class="font-bold">
+        Step 3: Add a link on the order confirmation email (Optional)
+      </p>
 
-      <Divider />
+      <br/> <br/>
+      
+      <h1 class="prose prose-lg font-bold">
+      Step 1 - Enable the app
+      </h1>
+      <p class="prose prose-blue">
+        <p class="sub-p" style={{fontSize: '16px', fontFamily: "sans-serif", }}>
+      Go to the <a target="_blank" href="/settings">Settings page</a>, and check the "Enable the Address Edit Helper app" checkbox, and click "Save".
+      </p>
+      <br/>
 
-      <BlockStack spacing="loose">
-        <Card sectioned>
-          <Text as="h3">Step 1: Enable the App</Text>
-          <Text as="p">
-            Go to the Settings page, check the "Enable the Address Edit Helper app" checkbox, and click "Save".
-          </Text>
-          {/* Placeholder for Screenshot */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-        </Card>
+      <img className="max-w-2xl" src={enableAddressEditorImage} alt="Enable Address Editor" />
+      <p class="sub-p" style={{fontSize: '16px', fontFamily: "sans-serif", }}>
+      After enabling the app, you can go the <Link to="/app/design">Design</Link> page page and change the text and look of the button and dialog.
+      </p>
+     
 
-        <Card sectioned>
-          <Text as="h3">Step 1a: Checkout Extensibility Widget</Text>
-          <Text as="p">
-            As you have enabled the Checkout Extensibility for Thank You page and Order Status page, you will need to add the Edit Address widget in the theme editor.
-            Ensure you have enabled the app in the previous step, and head to the Checkout customize.
-          </Text>
+      </p>
+       
+       <br/><br/>
+       <h1 class="prose prose-lg font-bold">
+       Step 1a - Checkout Extensibility widget
+      </h1>
 
-          <Text as="p">Thank You Page:</Text>
-          <Text as="p">
-            In the checkout customizer, select the "Thank You" page from the top navigation:
-          </Text>
-          {/* Placeholder for Screenshot */}
-          <Text as="p">[Insert Screenshot Here]</Text>
+      <p class="prose prose-blue" style={{fontSize:'18px'}}>
+        <br/> <br/>
+        As you have enabled the Checkout Extensibility for Thank you page and Order status page, you will need to add the Edit Address widget in the theme editor.
+        <br/> <br/>
+        Ensure you have enabled the app in the previous step, and head to the <Link to="/app/design">Checkout customize</Link>. (You will need to add the widget for thank you page, and order status page)
+        <br/><br/>
 
-          <Text as="p">
-            Click "Add app block", then select "Edit Address button" (Address-ease Address Edit Helper, Thank You), then click "Save".
-          </Text>
-          {/* Placeholder for Screenshots */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-          <Text as="p">[Insert Screenshot Here]</Text>
-
-          <Text as="p">
-            You can customize the text in the edit address popup by clicking the "Edit Address button".
-          </Text>
-          {/* Placeholder for Screenshot */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-
-          <Text as="p">Order Status Page:</Text>
-          <Text as="p">
-            In the checkout customizer, select the "Order Status" page from the top navigation:
-          </Text>
-          {/* Placeholder for Screenshot */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-
-          <Text as="p">
-            Click "Add app block", then select "Edit Address button" (Address-ease Address Edit Helper, Order Status), then click "Save".
-          </Text>
-          {/* Placeholder for Screenshots */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-          <Text as="p">[Insert Screenshot Here]</Text>
-
-          <Text as="p">
-            You can customize the text in the edit address popup by clicking the "Edit Address button".
-          </Text>
-          {/* Placeholder for Screenshot */}
-          <Text as="p">[Insert Screenshot Here]</Text>
-
-          <Text as="p">
-            After adding the app widgets in the Thank You page and Order Status page, you can go to the Design page and change the text and look of the button and dialog.
-          </Text>
-        </Card>
-
-        <Card sectioned>
-          <Text as="h3">Step 2: Add a Link to Customer Order Detail Page</Text>
-          <Text as="p">
-            As your store is using the new customer account system (email login code), no action is required here. Customers can now click on their order in their account page and they will see the order status page where they can edit their shipping address.
-          </Text>
-        </Card>
-
-        <Card sectioned>
-          <Text as="h3">Step 3: Add a Link on Order Confirmation Email</Text>
-          <Text as="p">
-          This will add a link to the order confirmation email, which will link customer to the order status page (thank you page), and they can edit their shipping address there. Go to your store Settings > Notifications > Orders > Order confirmation.
-
-         Insert the code below, below the shipping_address variable 
-          </Text>
-
-           {/* Text area for code snippet */}
-           <textarea 
-             rows={5} 
-             style={{ width: '100%', fontFamily: 'monospace', padding: '10px' }} 
-             readOnly
-           >
-            Test Content
-             {/* <!-- Start Address Edit Helper snippet -->
-             &lt;br&gt;&lt;br&gt;
-             &lt;a href="{{ shop.url }}/apps/address-update?order={{ id }}&url={{ order_status_url | url_encode }}" target="_blank" title="Edit Shipping Address" class="link link--text"&gt;Edit Shipping Address&lt;/a&gt;
-             <!-- End Address Edit Helper snippet --> */}
-           </textarea>
-
-           {/* Placeholder for Screenshot */}
-           <Text as="p">[Insert Screenshot Here]</Text>
-
-           <Divider />
-
-           {/* Example of how it will look */}
-           <Card sectioned>
-             <Text as="h4">It will look like this:</Text>
-             {/* Placeholder for Screenshot */}
-             <Text as="p">[Insert Screenshot Here]</Text>
-           </Card>
-        </Card>
-      </BlockStack>
-    </Page>
+      </p>
+     
+      <h1 class="prose prose-lg font-bold" >
+      Thank you page
+      </h1>
+      <br/>
+      <p class="prose prose-blue" style={{fontSize:'18px'}}>
+      In the checkout customizer, select the "Thank you" page from the top navigation :
+      </p>
+      <img className="max-w-2xl" src={thankyouPage} alt="Enable Address Editor" />
+      <p class="sub-p" style={{fontSize: '16px', fontFamily: "sans-serif", }}>Click "Add app block", then select "Edit Address button" (AddressEase, Thank you), then click "Save".</p>
+      <br/><br/>
+     <p class="sub-p" style={{fontSize: '18px', fontFamily: "sans-serif", }}>Do similar for Order Status Page </p>
+     <br/><br/> <br/>
+      
+    </Box>
   );
 }

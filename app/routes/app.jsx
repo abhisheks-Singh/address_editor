@@ -23,9 +23,10 @@ export default function App() {
           Address Ease 
         </Link>
         <Link to="/app/installation">Installation</Link>
-        <Link to="/app/settings">Settings</Link>
         <Link to="/app/design">Design</Link>
+        <Link to="/app/fulfilment">Time Limit</Link>
         <Link to="/app/support">Support & FAQ</Link>
+        <Link to="/app/settings">Settings</Link>ß
         {/* <Link to="/app/additional">Additional page</Link>ß */}
       </NavMenu>
       <Outlet />

@@ -19,6 +19,7 @@ useCustomer,
 useBillingAddress
 } from '@shopify/ui-extensions-react/checkout';
 import { GridItem, InlineLayout } from '@shopify/ui-extensions/checkout';
+import e from 'cors';
 // import { request } from 'https';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -74,7 +75,7 @@ export { address_btn_edit };
 // Edit Address Button Component
 function EditAddressButton() {
 
-  const app_url = 'https://di-consultancy-transform-peninsula.trycloudflare.com';  
+  const app_url = 'https://posted-attributes-flexibility-theory.trycloudflare.com';   // keep changing this url after every deployment
   const {query} = useApi();
 
   // useEffect(() => {
@@ -141,20 +142,35 @@ function EditAddressButton() {
     shop: shop.myshopifyDomain
   });
 
+  const [modalSettings, setModalSettings] = useState({});
   const [editableFields, setEditableFields] = useState({});
 
   const fetchSettings = async () => {
     try {
       const response = await fetch(`${app_url}/api/settings_new?shop=${shop.myshopifyDomain}`); // using this getting cors error : https://${shop.myshopifyDomain}/apps/proxy/settings_new
       const data = await response.json();
-      console.log('checking data  ', data);
+      const { shopSettings } = data;
+      const {designSettings} = data;
+      
+      console.log('checking data  ', data.shopSettings); 
       setEditableFields({
-        email: data.allowEmailChange, 
-        city: data.allowCityChange,
-        state: data.allowProvinceChange,
-        zip: data.allowZipCodeChange,
+        email: shopSettings.allowEmailChange, 
+        city: shopSettings.allowCityChange,
+        state: shopSettings.allowProvinceChange,
+        zip: shopSettings.allowZipCodeChange,
         phone: true // Assuming phone is always editable
       });
+      setModalSettings({
+        buttonText : designSettings.buttonText || 'Edit Address',
+        headerText : designSettings.dialogHeader || 'New Shipping Address',
+        confirmText : designSettings.confirmText || 'Confirm Update Shipping Address',
+        errorText : designSettings.errorText || 'Please enter a valid address',
+        closeText : designSettings.closeText || 'Close',
+        updatingText : designSettings.updatingText || 'Updating Address',
+        selectedCountries : designSettings.selectedCountries || ['coun1']
+
+      });
+
     } catch (error) {
       console.error("Error fetching settings:", error);
     }
@@ -242,7 +258,7 @@ function EditAddressButton() {
     <BlockStack spacing="tight">
     <Button
       overlay={
-        <Modal id="my-modal" padding title="Edit Your Shipping Address">
+        <Modal id="my-modal" padding title={modalSettings.headerText}>
          
           <View padding="base">
             <TextField
@@ -333,31 +349,17 @@ function EditAddressButton() {
           </View>
   
           <InlineLayout padding="base" spacing="tight">
-            <Button onPress={handleSubmit}>Submit</Button>
-            <Button onPress={() => ui.overlay.close('my-modal')}>Close</Button>
+            <Button onPress={handleSubmit}>{modalSettings.confirmText}</Button>
+            <Button onPress={() => ui.overlay.close('my-modal')}>{modalSettings.closeText}</Button>
           </InlineLayout>
         </Modal>
       }
     >
-      {isFormVisible ? 'Cancel' : 'Edit Address'}
+     {isFormVisible ? modalSettings.errorText : modalSettings.buttonText}
+
     </Button>
   
   </BlockStack>
   
   );
 }
-
-
-//   console.log('running or not');
-//   return (
-//     <div>
-//       <h1>Main Component</h1>
-//       {createPortal(
-//         <p>This content is rendered in the portalhost!</p>,
-//         document.getElementById('portalhost')
-//       )}
-//     </div>
-//   );
-// }
-
-// export default App;

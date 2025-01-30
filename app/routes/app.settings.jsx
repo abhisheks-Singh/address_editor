@@ -8,7 +8,7 @@ import {
   RadioButton,
   Button,
 } from "@shopify/polaris";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useLoaderData } from '@remix-run/react';
 import {authenticate} from '../shopify.server';
 
@@ -38,7 +38,8 @@ export const loader = async ({ request }) => {
 
 
 function SettingsPage() {
-    const app_url = 'https://di-consultancy-transform-peninsula.trycloudflare.com';
+
+    const app_url = 'https://posted-attributes-flexibility-theory.trycloudflare.com'; // on shopify dev command it keep on changing
     const { shopDomain, backendUrl } = useLoaderData();
 
     console.log("Shop Domain:", shopDomain);
@@ -62,12 +63,13 @@ function SettingsPage() {
     shipStationApiKey: "",
     shipStationApiSecret: "",
     shopDomain: shopDomain,
+    allowOrdersEdit: "cannot-edit-address",
+    disallowOrdersEdit: "preorder",
+
   });
-  const [allowOrdersEdit, setAllowOrdersEdit] = useState("cannot-edit-address");
-  const [disallowOrdersEdit, setDisallowOrdersEdit] = useState("preorder");
-  const [shipStationApiKey, setShipStationApiKey] = useState("");
-  const [shipStationApiSecretKey, setShipStationApiSecretKey] = useState("");   
-  
+
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   // Handle checkbox changes
   const handleCheckboxChange = useCallback(
     (key) => (newChecked) => {
@@ -80,21 +82,87 @@ function SettingsPage() {
   );
   const [selected, setSelected] = useState("allow");
 
-  const handleChange = useCallback((newValue) => setSelected(newValue), []);
+  const handleChange = useCallback((key) => (newValue) => {
+    setSettings((prevSettings) => ({
+        ...prevSettings,
+        [key]: newValue,
+    }));
+}, []);
+
+// fn to fetch setting data : 
+
+
+const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${app_url}/api/settings_new?shop=${shopDomain}`); // using this getting cors error : https://${shop.myshopifyDomain}/apps/proxy/settings_new
+      const data = await response.json();
+      const { shopSettings } = data;
+    //   const {designSettings} = data;
+      
+      console.log('shopSettings data ', data.shopSettings); 
+      console.log('designSettings  ', data.designSettings);
+
+      setSettings({
+        enableApp: shopSettings.enableApp,
+        allowNoteChange: shopSettings.allowNoteChange,
+        allowEmailChange: shopSettings.allowEmailChange,
+        allowCountryChange: shopSettings.allowCountryChange,
+        allowProvinceChange: shopSettings.allowProvinceChange,
+        allowCityChange: shopSettings.allowCityChange,
+        allowZipCodeChange: shopSettings.allowZipCodeChange,
+        disallowPOBox: shopSettings.disallowPOBox,
+        restrictEditingTag: shopSettings.restrictEditingTag,
+        disableEditingTag: shopSettings.disableEditingTag,
+        autoTagUpdatedOrder: shopSettings.autoTagUpdatedOrder,
+        sendEmailNotification: shopSettings.sendEmailNotification,
+        syncToShipStation: shopSettings.syncToShipStation,
+        shipStationApiKey: shopSettings.shipStationApiKey,
+        shipStationApiSecret: shopSettings.shipStationApiSecret,
+        allowOrdersEdit: shopSettings.allowOrdersEdit,
+        disallowOrdersEdit: shopSettings.disallowOrdersEdit,
+        shipStationApiSecretKey: shopSettings.shipStationApiSecretKey,
+        shopDomain: shopDomain
+      })
+    //   setEditableFields({
+    //     email: shopSettings.allowEmailChange, 
+    //     city: shopSettings.allowCityChange,
+    //     state: shopSettings.allowProvinceChange,
+    //     zip: shopSettings.allowZipCodeChange,
+    //     phone: true // Assuming phone is always editable
+    //   });
+    //   setModalSettings({
+    //     buttonText : designSettings.buttonText || 'Edit Address',
+    //     headerText : designSettings.dialogHeader || 'New Shipping Address',
+    //     confirmText : designSettings.confirmText || 'Confirm Update Shipping Address',
+    //     errorText : designSettings.errorText || 'Please enter a valid address',
+    //     closeText : designSettings.closeText || 'Close',
+    //     updatingText : designSettings.updatingText || 'Updating Address',
+    //     selectedCountries : designSettings.selectedCountries || ['coun1']
+
+    //   });
+
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   // fn to collect all data : 
-
   const handleSave = async () => {
     // Collect all data to be saved
     const dataToSave = {
-      ...settings,
-      allowOrdersEdit,
-      disallowOrdersEdit,
-      shipStationApiKey,
-      shipStationApiSecretKey
+        dataType: 'settings', // Add this to differentiate between different data types
+      ...settings
     };
     console.log("Saved Data:", dataToSave);
 
+    setLoading(true);
+    setSuccessMessage(""); 
+
+    try{
     const response = await fetch(`${app_url}/api/settings_new`, { // Adjusted URL to match your file structure
         method: 'POST',
         headers: {
@@ -105,9 +173,26 @@ function SettingsPage() {
 
     if (!response.ok) {
         console.error("Failed to save settings:", await response.json());
+        setSuccessMessage("Failed to save settings. Please try again.");
     } else {
         const result = await response.json();
         console.log("Saved Settings:", result);
+        setSuccessMessage("Settings saved successfully!");
+
+          // Hide the success message after 3 seconds
+          setTimeout(() => {
+              setSuccessMessage("");
+          }, 3000); // Adjust the time as needed (3000 ms = 3 seconds)
+        // setSettings(result);
+    }
+    } catch (error) {
+        console.error(error);
+      setSuccessMessage("Failed to save settings. Please try again.");
+
+    } finally {
+        // Reset loading state
+      setLoading(false);
+
     }
   };
 
@@ -322,7 +407,6 @@ function SettingsPage() {
           class="tag-registration"
           style={{ maxWidth: "600px" }}
         >
-
           <Text as="h2" color="primary" fontWeight="bold">
             Tag restriction
           </Text>
@@ -354,8 +438,13 @@ function SettingsPage() {
                 <Box style={{ marginLeft: "25px" }}>
                   <Box style={{ width: "300px" }}>
                     <TextField
-                      value={allowOrdersEdit}
-                      onChange={setAllowOrdersEdit}
+                      value={settings.allowOrdersEdit}
+                      onChange={(value) =>
+                        setSettings((prevSettings) => ({
+                          ...prevSettings,
+                          allowOrdersEdit: value,
+                        }))
+                      }
                     />
                   </Box>
                   <Text as="p" color="subdued">
@@ -387,8 +476,13 @@ function SettingsPage() {
                 <Box style={{ marginLeft: "25px" }}>
                   <Box style={{ width: "300px" }}>
                     <TextField
-                      value={disallowOrdersEdit}
-                      onChange={setDisallowOrdersEdit}
+                      value={settings.disallowOrdersEdit}
+                      onChange={(value) =>
+                        setSettings((prevSettings) => ({
+                          ...prevSettings,
+                          disallowOrdersEdit: value,
+                        }))
+                      }
                     />
                   </Box>
                   <Text as="p" color="subdued">
@@ -426,123 +520,138 @@ function SettingsPage() {
         </Box>
         <br /> <br /> <br />
         <Box marginTop="30px" class="email-notification">
-            <h1 style={{fontSize: '20px'}}>Email Notification</h1>
-        <Box
-          style={{
-            width: "600px",
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box width="556">
-            <Text as="h2" color="primary" fontWeight="bold">
-            Send email notification to store when customer update address?
-            </Text>
-            <Text as="p" color="subdued">
-            An email will be sent to the Store contact email every time a customer update the shipping address (abhishek.singh@centire.in)
-            </Text>
-          </Box>
-          <Box>
-            <Checkbox
-              checked={settings.sendEmailNotification}
-              onChange={handleCheckboxChange("sendEmailNotification")}
-            />
-          </Box>
-        </Box>
-      </Box>
-
-      <br /> <br /> 
-      <Box marginTop="30px" class="ship-station">
-            <h1 style={{fontSize: '20px'}}>ShipStation Sync</h1>
-        <Box
-          style={{
-            width: "600px",
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-          class="ship-station-sync"
-        >
-          <Box width="556">
-            <Text as="h2" color="primary" fontWeight="bold">
-            Sync order shipping address update to ShipStation?
-            </Text>
-            <Text as="p" color="subdued">
-            If you are using ShipStation to ship order, you can enable this option and input the API key and secret below to sync order update to ShipStation.
-            </Text>
-          </Box>
-          <Box>
-            <Checkbox
-              checked={settings.syncToShipStation}
-              onChange={handleCheckboxChange("syncToShipStation")}
-            />
-          </Box>
-        </Box>
-        <hr style={{ marginRight: "350px" }} /> 
-        
-        <Box
-          style={{
-            width: "600px",
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-          class="ship-station-Api-Key"
-        >
-          <Box width="556">
-            <Text as="h2" color="primary" fontWeight="bold">
-            ShipStation API Key
-            </Text>
-            <Text as="p" color="subdued">
-            You can retrieve your API Key following instruction here
-            </Text>
-          </Box>
-          <Box>
-            <TextField
-            value={shipStationApiKey}
-            onChange={setShipStationApiKey}
-            ></TextField>
-          </Box>
-        </Box>
-        <hr style={{ marginRight: "350px" }} /> 
-
-        <Box
-          style={{
-            width: "600px",
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-          class="ship-station-Api-Secret-Key"
-        >
-          <Box width="556">
-            <Text as="h2" color="primary" fontWeight="bold">
-            ShipStation API Secret
-            </Text>
-            <Text as="p" color="subdued">
-            You can retrieve your API Secret following instruction here
-            </Text>
-          </Box>
-          <Box>
-            <TextField
-            value={shipStationApiSecretKey}
-            onChange={setShipStationApiSecretKey}
-            ></TextField>
-          </Box>
-        </Box>
-        <hr style={{ marginRight: "350px" }} /> 
-
-      </Box>
-
-
-      </Box>
-
-      <Box style={{ maxWidth: '600px', gap:'10px', display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom:"20px"}}>
-            
-            <Button variant="primary" onClick={handleSave}>Save</Button>
-            <Button>Cancel</Button>
+          <h1 style={{ fontSize: "20px" }}>Email Notification</h1>
+          <Box
+            style={{
+              width: "600px",
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box width="556">
+              <Text as="h2" color="primary" fontWeight="bold">
+                Send email notification to store when customer update address?
+              </Text>
+              <Text as="p" color="subdued">
+                An email will be sent to the Store contact email every time a
+                customer update the shipping address (abhishek.singh@centire.in)
+              </Text>
             </Box>
+            <Box>
+              <Checkbox
+                checked={settings.sendEmailNotification}
+                onChange={handleCheckboxChange("sendEmailNotification")}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <br /> <br />
+        <Box marginTop="30px" class="ship-station">
+          <h1 style={{ fontSize: "20px" }}>ShipStation Sync</h1>
+          <Box
+            style={{
+              width: "600px",
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+            class="ship-station-sync"
+          >
+            <Box width="556">
+              <Text as="h2" color="primary" fontWeight="bold">
+                Sync order shipping address update to ShipStation?
+              </Text>
+              <Text as="p" color="subdued">
+                If you are using ShipStation to ship order, you can enable this
+                option and input the API key and secret below to sync order
+                update to ShipStation.
+              </Text>
+            </Box>
+            <Box>
+              <Checkbox
+                checked={settings.syncToShipStation}
+                onChange={handleCheckboxChange("syncToShipStation")}
+              />
+            </Box>
+          </Box>
+          <hr style={{ marginRight: "350px" }} />
+
+          <Box
+            style={{
+              width: "600px",
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+            class="ship-station-Api-Key"
+          >
+            <Box width="556">
+              <Text as="h2" color="primary" fontWeight="bold">
+                ShipStation API Key
+              </Text>
+              <Text as="p" color="subdued">
+                You can retrieve your API Key following instruction here
+              </Text>
+            </Box>
+            <Box>
+              <TextField
+                value={settings.shipStationApiKey}
+                onChange={setSettings.shipStationApiKey}
+              ></TextField>
+            </Box>
+          </Box>
+          <hr style={{ marginRight: "350px" }} />
+
+          <Box
+            style={{
+              width: "600px",
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+            class="ship-station-Api-Secret-Key"
+          >
+            <Box width="556">
+              <Text as="h2" color="primary" fontWeight="bold">
+                ShipStation API Secret
+              </Text>
+              <Text as="p" color="subdued">
+                You can retrieve your API Secret following instruction here
+              </Text>
+            </Box>
+            <Box>
+              <TextField
+                value={settings.shipStationApiSecretKey}
+                onChange={setSettings.shipStationApiSecretKey}
+              ></TextField>
+            </Box>
+          </Box>
+          <hr style={{ marginRight: "350px" }} />
+        </Box>
+      </Box>
+
+      <Box
+        style={{
+          maxWidth: "600px",
+          gap: "10px",
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        <Button variant="primary" onClick={handleSave}>
+          {loading ? "Saving..." : "Save"}
+        </Button>
+        <Button>Cancel</Button>
+        {/* Success Message */}
+        {successMessage && (
+          <div style={{ marginTop: "20px", color: "green" }}>
+            {successMessage}
+          </div>
+        )}
+      </Box>
     </Page>
   );
 }

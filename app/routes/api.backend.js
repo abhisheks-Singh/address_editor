@@ -30,6 +30,7 @@ mutation updateShippingAddress($input: OrderInput!) {
     orderUpdate(input: $input) {
         order {
             id
+            email
             shippingAddress {
                 firstName
                 lastName
@@ -51,7 +52,7 @@ export async function action({ request }) {
         const body = await request.json();
         console.log("Request Data:", body);
         // Extract necessary data dynamically
-        const { shop, orderId, address1, city, state, country, zip, first_name, last_name } = body;
+        const { shop, email, orderId, address1, city, state, country, zip, first_name, last_name } = body;
         
         const access_token = await getAccessToken(shop); 
 
@@ -70,6 +71,7 @@ export async function action({ request }) {
 
         const input = {
             id: orderId,
+            email: email,
             shippingAddress: {
                 firstName: first_name,
                 lastName: last_name,

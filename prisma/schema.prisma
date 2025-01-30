@@ -30,6 +30,7 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
   settings      ShopSettings?
+  designSettings DesignSettings? 
 }
 
 model ShopSettings {
@@ -54,4 +55,18 @@ model ShopSettings {
   disallowOrdersEdit       String
   shipStationApiSecretKey   String?
   session              Session  @relation(fields: [shop], references: [shop]) 
+}
+
+model DesignSettings {
+    id                      Int      @id @default(autoincrement())
+    buttonText              String
+    dialogHeader            String
+    instructionText         String
+    confirmText             String
+    updatingText            String
+    closeText               String
+    errorText               String
+    selectedCountries       String
+    shop                    String   @unique 
+    session                 Session  @relation(fields: [shop], references: [shop]) 
 }
