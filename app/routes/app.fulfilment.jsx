@@ -1,8 +1,40 @@
 import { Box, Checkbox, Select } from "@shopify/polaris";
 import { useCallback, useEffect, useState } from "react";
 import "./assets/custom.css";
+import { authenticate } from "../shopify.server";
+import { useLoaderData } from "@remix-run/react";
+
+export const loader = async ({ request }) => {
+    try {
+        const main_session = await authenticate.admin(request); 
+        const session = main_session.session; 
+  
+        const shopDomain = session?.shop; 
+        console.log("Shop Domain from fulFillment page:", shopDomain);
+        // console.log("Session:", session);
+        // console.log("Main Session:", main_session);
+  
+        if (!shopDomain) {
+            throw new Response('Unauthorized', { status: 401 });
+        }
+  
+        const backendUrl = `https://${shopDomain}/apps/proxy/settings_new`; 
+  
+        return { shopDomain, backendUrl}; // Return relevant data
+    } catch (error) {
+        console.error("Error retrieving session:", error);
+        throw new Response('Internal Server Error', { status: 500 });
+    }
+  };
 
 function FulfillmentPage() {
+
+    const { shopDomain } = useLoaderData();
+    console.log("Shop Domain:", shopDomain);
+
+    const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com'; // on shopify dev command it keep on changing
+
+
   const [currentTime, setCurrentTime] = useState("");
   const [fulfillment, setFulfillment] = useState({
     addressEditTimeLimit: false,
@@ -24,6 +56,13 @@ function FulfillmentPage() {
       minutes: "0",
     },
   });
+
+  // data fetcher and updater : 
+
+  const [loading, setLoading] = useState(false);
+   const [successMessage, setSuccessMessage] = useState("");
+
+   
 
   // options :
 
@@ -52,6 +91,41 @@ function FulfillmentPage() {
     return new Intl.DateTimeFormat("en-US", options).format(new Date());
   };
 
+  const fulfillment_fetch = async () => {
+    try {
+        const response = await fetch(`${app_url}/api/settings_new?shop=${shopDomain}`);
+        const data = await response.json();
+        const { timeLimits } = data; 
+  
+        console.log('timeLimits Settings:', timeLimits);
+  
+        // Update settings state with fetched design settings
+        setFulfillment((prevSettings) => ({
+            ...prevSettings,
+            addressEditTimeLimit: timeLimits.addressEditTimeLimit,
+            onHold: timeLimits.onHold,
+            partiallyFulfilled: timeLimits.partiallyFulfilled,
+            partiallyRefunded: timeLimits.partiallyRefunded,
+            dailyFulfillment: {
+                monday: { enabled: timeLimits.mondayEnabled, start: timeLimits.mondayStart, end: timeLimits.mondayEnd },
+                tuesday: { enabled: timeLimits.tuesdayEnabled, start: timeLimits.tuesdayStart, end: timeLimits.tuesdayEnd },
+                wednesday: { enabled: timeLimits.wednesdayEnabled, start: timeLimits.wednesdayStart, end: timeLimits.wednesdayEnd },
+                thursday: { enabled: timeLimits.thursdayEnabled, start: timeLimits.thursdayStart, end: timeLimits.thursdayEnd },
+                friday: { enabled: timeLimits.fridayEnabled, start: timeLimits.fridayStart, end: timeLimits.fridayEnd },
+                saturday: { enabled: timeLimits.saturdayEnabled, start: timeLimits.saturdayStart, end: timeLimits.saturdayEnd },
+                sunday: { enabled: timeLimits.sundayEnabled, start: timeLimits.sundayStart, end: timeLimits.sundayEnd },
+            },
+            timeLimits: {
+                days: timeLimits.timeLimitsDays,
+                hours: timeLimits.timeLimitsHours,
+                minutes: timeLimits.timeLimitsMinutes,
+            },
+        }));
+    } catch (error) {
+        console.error("Error fetching design settings:", error);
+    }
+  };
+
   useEffect(() => {
     const timezone = "Asia/Kolkata"; // Updated to IST
     const updateTime = () => setCurrentTime(getCurrentTimeInTimezone(timezone));
@@ -59,19 +133,23 @@ function FulfillmentPage() {
     updateTime();
     const intervalId = setInterval(updateTime, 1000);
     return () => clearInterval(intervalId);
+
+    
   }, []);
 
   const handleCheckboxChange = (field) => (checked) => {
     setFulfillment((prev) => ({ ...prev, [field]: checked }));
   };
 
-  const handleDayChange = (day) => (e) => {
-    const { checked } = e.target;
+  const handleDayChangeCheckBox = (day) => (checked) => {
     setFulfillment((prev) => ({
       ...prev,
       dailyFulfillment: {
         ...prev.dailyFulfillment,
-        [day]: { ...prev.dailyFulfillment[day], enabled: checked },
+        [day]: {
+          ...prev.dailyFulfillment[day],
+          enabled: checked,
+        },
       },
     }));
   };
@@ -122,9 +200,56 @@ function FulfillmentPage() {
     }));
   };
 
-  const handleSubmit = () => {
+
+
+    // handle submit fn
+  const handleSubmit = async () => {
+    const savedData = {
+        ...fulfillment,
+        shopDomain,
+        dataType: 'timeLimit' 
+    };
     console.log(fulfillment);
+    console.log("Saved Data fulfillment page :", savedData);
+
+    setLoading(true);
+    setSuccessMessage("");
+    try {
+        const response = await fetch(`${app_url}/api/settings_new`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(savedData)
+        });
+  
+        if (!response.ok) {
+            console.error("Failed to save settings:", await response.json());
+            setSuccessMessage("Failed to save settings. Please try again.");
+        } else {
+            const result = await response.json();
+            console.log("Saved Settings:", result);
+            setSuccessMessage("Settings saved successfully!");
+  
+           
+            setTimeout(() => {
+                setSuccessMessage("");
+            }, 3000); 
+        }
+    } catch (error) {
+        console.error(error);
+        setSuccessMessage("Failed to save settings. Please try again.");
+    } finally {
+        
+        setLoading(false);
+    }
   };
+
+
+  useEffect(() => {
+    fulfillment_fetch(); // Fetch settings when component mounts
+  }, []);
+
 
   return (
     <Box className="main-container-fulfillment bg-white">
@@ -205,7 +330,7 @@ function FulfillmentPage() {
           >
             <Checkbox
               checked={fulfillment.addressEditTimeLimit}
-              onChange={handleCheckboxChange}
+              onChange={handleCheckboxChange("addressEditTimeLimit")}
               class="checkbox-time-limit"
             />
             <Box class="flex flex-row items-center">
@@ -286,8 +411,8 @@ function FulfillmentPage() {
                 <Box className="time-containers flex">
                   <Checkbox
                     checked={fulfillment.dailyFulfillment[day].enabled}
-                    onChange={handleDayChange(day)}
-                    className="checkbox-time-limit"
+                    onChange={handleDayChangeCheckBox(day)}
+                    className="checkbox-time-limit abhishek"
                   />
                   <span className="ml-2 text-sm font-medium text-gray-900 mr-4 name-span">
                     {day.charAt(0).toUpperCase() + day.slice(1)}
@@ -490,17 +615,40 @@ function FulfillmentPage() {
                     }}
                   />
 
-        <Box class="button-section"  
-            style={{
-            gap: "10px",
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: "20px",
-            marginBottom: "20px",
-          }}>
-          <button class="cancel-button">Cancel</button>
-          <button class="submit-btn text-white py-2 px-4" onClick={handleSubmit}>Save</button>
-        </Box>
+<Box
+  className="button-section"
+  style={{
+    gap: "10px",
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: "20px",
+    marginBottom: "20px",
+  }}
+>
+  <button className="cancel-button">Cancel</button>
+  <button className="submit-btn text-white py-2 px-4" onClick={handleSubmit}>
+    Save
+  </button>
+</Box>
+
+{/* Success Message Section */}
+{successMessage && (
+  <Box
+    style={{
+      marginTop: "10px",
+      padding: "10px",
+      backgroundColor: "#d4edda",
+      color: "#155724",
+      border: "1px solid #c3e6cb",
+      borderRadius: "4px",
+      textAlign: "center",
+    }}
+  >
+    {successMessage}
+  </Box>
+)}
+
+        
         <br/> <br/> <br/>
       </Box>
     </Box>

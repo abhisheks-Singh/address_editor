@@ -39,7 +39,7 @@ export const loader = async ({ request }) => {
 
 function SettingsPage() {
 
-    const app_url = 'https://posted-attributes-flexibility-theory.trycloudflare.com'; // on shopify dev command it keep on changing
+    const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com'; // on shopify dev command it keep on changing
     const { shopDomain, backendUrl } = useLoaderData();
 
     console.log("Shop Domain:", shopDomain);

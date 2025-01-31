@@ -33,10 +33,16 @@ export async function loader({ request }) {
       where: { shop: shopDomain },
   });
 
+  const existingTimeLimit = await prisma.timeLimit.findUnique({
+    where: { shop: shopDomain },
+});
+
   // Prepare the response object
   const responseData = {
       shopSettings: existingSettings || null,
       designSettings: existingDesignSettings || null,
+      timeLimits: existingTimeLimit || null
+
   };
 
   // If neither settings are found, return a 404 error
@@ -63,6 +69,7 @@ export async function action({ request }) {
 
   const data = await request.json();
   const shopDomain = data.shopDomain;
+  
 
   if (method === 'POST') {
       if (data.dataType === 'settings') {
@@ -166,7 +173,93 @@ export async function action({ request }) {
 
               return newDesignSettings;
           }
-      }
+      } 
+      else  if (data.dataType === 'timeLimit') {
+        console.log('Time Limit Data:', data, 'and shop domain is ', shopDomain);
+        
+        const existingTimeLimit = await prisma.timeLimit.findUnique({
+            where: { shop: shopDomain },
+        });
+
+        if (existingTimeLimit) {
+          console.log('if scope')
+          
+            // Update existing time limit settings
+            const updatedTimeLimit = await prisma.timeLimit.update({
+                where: { shop: shopDomain },
+                data: {
+                    addressEditTimeLimit: data.addressEditTimeLimit,
+                    onHold: data.onHold,
+                    partiallyFulfilled: data.partiallyFulfilled,
+                    partiallyRefunded: data.partiallyRefunded,
+                    mondayEnabled: data.dailyFulfillment.monday.enabled,
+                    mondayStart: data.dailyFulfillment.monday.start,
+                    mondayEnd: data.dailyFulfillment.monday.end,
+                    tuesdayEnabled: data.dailyFulfillment.tuesday.enabled,
+                    tuesdayStart: data.dailyFulfillment.tuesday.start,
+                    tuesdayEnd: data.dailyFulfillment.tuesday.end,
+                    wednesdayEnabled: data.dailyFulfillment.wednesday.enabled,
+                    wednesdayStart: data.dailyFulfillment.wednesday.start,
+                    wednesdayEnd: data.dailyFulfillment.wednesday.end,
+                    thursdayEnabled: data.dailyFulfillment.thursday.enabled,
+                    thursdayStart: data.dailyFulfillment.thursday.start,
+                    thursdayEnd: data.dailyFulfillment.thursday.end,
+                    fridayEnabled: data.dailyFulfillment.friday.enabled,
+                    fridayStart: data.dailyFulfillment.friday.start,
+                    fridayEnd: data.dailyFulfillment.friday.end,
+                    saturdayEnabled: data.dailyFulfillment.saturday.enabled,
+                    saturdayStart: data.dailyFulfillment.saturday.start,
+                    saturdayEnd: data.dailyFulfillment.saturday.end,
+                    sundayEnabled: data.dailyFulfillment.sunday.enabled,
+                    sundayStart: data.dailyFulfillment.sunday.start,
+                    sundayEnd: data.dailyFulfillment.sunday.end,
+                    timeLimitsDays: data.timeLimits.days,
+                    timeLimitsHours: data.timeLimits.hours,
+                    timeLimitsMinutes: data.timeLimits.minutes,
+                }
+            });
+
+            return updatedTimeLimit;
+        } else {
+          console.log('else scope');
+            // Create new time limit settings
+            const newTimeLimit = await prisma.timeLimit.create({
+                data: {
+                    shop: shopDomain,
+                    addressEditTimeLimit: data.addressEditTimeLimit,
+                    onHold: data.onHold,
+                    partiallyFulfilled: data.partiallyFulfilled,
+                    partiallyRefunded: data.partiallyRefunded,
+                    mondayEnabled: data.dailyFulfillment.monday.enabled,
+                    mondayStart: data.dailyFulfillment.monday.start,
+                    mondayEnd: data.dailyFulfillment.monday.end,
+                    tuesdayEnabled: data.dailyFulfillment.tuesday.enabled,
+                    tuesdayStart: data.dailyFulfillment.tuesday.start,
+                    tuesdayEnd: data.dailyFulfillment.tuesday.end,
+                    wednesdayEnabled: data.dailyFulfillment.wednesday.enabled,
+                    wednesdayStart: data.dailyFulfillment.wednesday.start,
+                    wednesdayEnd: data.dailyFulfillment.wednesday.end,
+                    thursdayEnabled: data.dailyFulfillment.thursday.enabled,
+                    thursdayStart: data.dailyFulfillment.thursday.start,
+                    thursdayEnd: data.dailyFulfillment.thursday.end,
+                    fridayEnabled: data.dailyFulfillment.friday.enabled,
+                    fridayStart: data.dailyFulfillment.friday.start,
+                    fridayEnd: data.dailyFulfillment.friday.end,
+                    saturdayEnabled: data.dailyFulfillment.saturday.enabled,
+                    saturdayStart: data.dailyFulfillment.saturday.start,
+                    saturdayEnd: data.dailyFulfillment.saturday.end,
+                    sundayEnabled: data.dailyFulfillment.sunday.enabled,
+                    sundayStart: data.dailyFulfillment.sunday.start,
+                    sundayEnd: data.dailyFulfillment.sunday.end,
+                    timeLimitsDays: data.timeLimits.days,
+                    timeLimitsHours: data.timeLimits.hours,
+                    timeLimitsMinutes: data.timeLimits.minutes
+                }
+            });
+
+            return newTimeLimit;
+        }
+    }
   }
 
   return new Response('Method not allowed', { status: 405 });

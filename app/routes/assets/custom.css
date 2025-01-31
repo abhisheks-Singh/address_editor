@@ -176,6 +176,11 @@
   max-width: 42rem;
 }
 
+
+
+.content-one {
+  max-width: 50%;
+}
 .items-center {
   align-items: center;
 }

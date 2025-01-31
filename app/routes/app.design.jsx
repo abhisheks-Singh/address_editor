@@ -21,133 +21,123 @@ import {
 import { useState, useCallback, useEffect } from "react";
 import { TextUnderlineIcon } from "@shopify/polaris-icons";
 import { InlineLayout, View } from "@shopify/ui-extensions-react/checkout";
-import { useLoaderData } from '@remix-run/react';
-import './assets/custom.css';
+import { useLoaderData } from "@remix-run/react";
+import "./assets/custom.css";
 import { authenticate } from "../shopify.server";
 
 const CountrySelector = ({ selectedCountries, onChange }) => {
   const [active, setActive] = useState(false);
 
   const toggleActive = useCallback(() => setActive((active) => !active), []);
-  
-  const activator = (
-      <Button onClick={toggleActive}>
-          Select Country
-      </Button>
-  );
+
+  const activator = <Button onClick={toggleActive}>Select Country</Button>;
 
   return (
-      <Box padding={100} width="100%">
-          <Popover active={active} activator={activator} onClose={toggleActive}>
-              <OptionList
-                  className="option-list" // Add custom class here
-                  title="Select your countries"
-                  options={[
-                      { value: 'coun1', label: 'Country1' },
-                      { value: 'coun2', label: 'Country2' },
-                      { value: 'coun3', label: 'Country3' }
-                  ]}
-                  selected={selectedCountries}
-                  onChange={onChange}
-                  allowMultiple={false} // Change to true if you want multiple selections
-              />
-          </Popover>
-      </Box>
+    <Box padding={100} width="100%">
+      <Popover active={active} activator={activator} onClose={toggleActive}>
+        <OptionList
+          className="option-list" // Add custom class here
+          title="Select your countries"
+          options={[
+            { value: "coun1", label: "Country1" },
+            { value: "coun2", label: "Country2" },
+            { value: "coun3", label: "Country3" },
+          ]}
+          selected={selectedCountries}
+          onChange={onChange}
+          allowMultiple={false} // Change to true if you want multiple selections
+        />
+      </Popover>
+    </Box>
   );
 };
-
 
 export const loader = async ({ request }) => {
   try {
-      const main_session = await authenticate.admin(request); 
-      const session = main_session.session; 
+    const main_session = await authenticate.admin(request);
+    const session = main_session.session;
 
-      const shopDomain = session?.shop; 
-      // console.log("Shop Domain:", shopDomain);
-      // console.log("Session:", session);
-      // console.log("Main Session:", main_session);
+    const shopDomain = session?.shop;
+    // console.log("Shop Domain:", shopDomain);
+    // console.log("Session:", session);
+    // console.log("Main Session:", main_session);
 
-      if (!shopDomain) {
-          throw new Response('Unauthorized', { status: 401 });
-      }
+    if (!shopDomain) {
+      throw new Response("Unauthorized", { status: 401 });
+    }
 
-      const backendUrl = `https://${shopDomain}/apps/proxy/settings_new`; 
+    const backendUrl = `https://${shopDomain}/apps/proxy/settings_new`;
 
-      return { shopDomain, backendUrl}; // Return relevant data
+    return { shopDomain, backendUrl }; // Return relevant data
   } catch (error) {
-      console.error("Error retrieving session:", error);
-      throw new Response('Internal Server Error', { status: 500 });
+    console.error("Error retrieving session:", error);
+    throw new Response("Internal Server Error", { status: 500 });
   }
 };
 
-
-
 function DesignPage() {
-  const app_url = 'https://posted-attributes-flexibility-theory.trycloudflare.com'; // on shopify dev command it keep on changing
-    const { shopDomain, backendUrl } = useLoaderData();
+  const app_url = "https://automobiles-preston-lot-instant.trycloudflare.com"; // on shopify dev command it keep on changing
+  const { shopDomain, backendUrl } = useLoaderData();
 
-    console.log("Shop Domain:", shopDomain);
-    console.log("App URL:", backendUrl);
+  console.log("Shop Domain:", shopDomain);
+  console.log("App URL:", backendUrl);
 
-
-    
-    const [designsettings, setDesignSettings] = useState({
-      buttonText: "Change Shipping Address",
-      dialogHeader: "New Shipping Address",
-      instructionText: "Enter your updated shipping details.",
-      confirmText: "Confirm Update Shipping Address",
-      updatingText: "Updating",
-      closeText: "Close",
-      errorText: "Please enter a valid address",
-      selectedCountries: ['coun1'],
+  const [designsettings, setDesignSettings] = useState({
+    buttonText: "Change Shipping Address",
+    dialogHeader: "New Shipping Address",
+    instructionText: "Enter your updated shipping details.",
+    confirmText: "Confirm Update Shipping Address",
+    updatingText: "Updating",
+    closeText: "Close",
+    errorText: "Please enter a valid address",
+    selectedCountries: ["coun1"],
   });
 
-   // Loader and success message states
-   const [loading, setLoading] = useState(false);
-   const [successMessage, setSuccessMessage] = useState("");
-
+  // Loader and success message states
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleCountrySelectionChange = (selected) => {
-    setDesignSettings(prevSettings => ({
-        ...prevSettings, 
-        selectedCountries: selected 
+    setDesignSettings((prevSettings) => ({
+      ...prevSettings,
+      selectedCountries: selected,
     }));
-};
+  };
 
-
-const fetchDesignSettings = async () => {
-  try {
-      const response = await fetch(`${app_url}/api/settings_new?shop=${shopDomain}`);
+  const fetchDesignSettings = async () => {
+    try {
+      const response = await fetch(
+        `${app_url}/api/settings_new?shop=${shopDomain}`,
+      );
       const data = await response.json();
       const { designSettings } = data;
 
-      console.log('designSettings:', designSettings);
+      console.log("designSettings:", designSettings);
 
       // Update settings state with fetched design settings
       setDesignSettings((prevSettings) => ({
-          ...prevSettings,
-          ...designSettings 
+        ...prevSettings,
+        ...designSettings,
       }));
-  } catch (error) {
+    } catch (error) {
       console.error("Error fetching design settings:", error);
-  }
-};
+    }
+  };
 
-// Destructure design settings
-const handleChange = (key) => (value) => {
-  setDesignSettings((prevSettings) => ({
+  // Destructure design settings
+  const handleChange = (key) => (value) => {
+    setDesignSettings((prevSettings) => ({
       ...prevSettings,
       [key]: value,
-  }));
-};
+    }));
+  };
 
-
-const handleSave = async () => {
-  const savedData = {
-    ...designsettings,
-    shopDomain,
-    dataType: 'design' // Specify data type for differentiation
-};
+  const handleSave = async () => {
+    const savedData = {
+      ...designsettings,
+      shopDomain,
+      dataType: "design", // Specify data type for differentiation
+    };
     console.log("Saved Data:", savedData);
 
     setLoading(true);
@@ -155,39 +145,38 @@ const handleSave = async () => {
 
     try {
       const response = await fetch(`${app_url}/api/settings_new`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(savedData)
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(savedData),
       });
 
       if (!response.ok) {
-          console.error("Failed to save settings:", await response.json());
-          setSuccessMessage("Failed to save settings. Please try again.");
+        console.error("Failed to save settings:", await response.json());
+        setSuccessMessage("Failed to save settings. Please try again.");
       } else {
-          const result = await response.json();
-          console.log("Saved Settings:", result);
-          setSuccessMessage("Settings saved successfully!");
+        const result = await response.json();
+        console.log("Saved Settings:", result);
+        setSuccessMessage("Settings saved successfully!");
 
-          // Hide the success message after 3 seconds
-          setTimeout(() => {
-              setSuccessMessage("");
-          }, 3000); // Adjust the time as needed (3000 ms = 3 seconds)
+        // Hide the success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage("");
+        }, 3000); // Adjust the time as needed (3000 ms = 3 seconds)
       }
-  } catch (error) {
+    } catch (error) {
       console.error(error);
       setSuccessMessage("Failed to save settings. Please try again.");
-  } finally {
+    } finally {
       // Reset loading state
       setLoading(false);
-  }
-};
+    }
+  };
 
-useEffect(() => {
-  fetchDesignSettings(); // Fetch settings when component mounts
-}, []);
-
+  useEffect(() => {
+    fetchDesignSettings(); // Fetch settings when component mounts
+  }, []);
 
   return (
     <Box class="main-container-design" paddingInlineStart="500">
@@ -230,7 +219,10 @@ useEffect(() => {
               </Box>
 
               <Box width="300px">
-                <TextField value={designsettings.buttonText} onChange={handleChange('buttonText')} />
+                <TextField
+                  value={designsettings.buttonText}
+                  onChange={handleChange("buttonText")}
+                />
               </Box>
             </Box>
           </Box>
@@ -395,7 +387,7 @@ useEffect(() => {
                     <Box width="250px">
                       <TextField
                         value={designsettings.dialogHeader}
-                        onChange={handleChange('dialogHeader')}
+                        onChange={handleChange("dialogHeader")}
                       />
                     </Box>
                   </Box>
@@ -425,7 +417,7 @@ useEffect(() => {
                     <Box width="250px">
                       <textarea
                         value={designsettings.instructionText}
-                        onChange={handleChange('instructionText')}
+                        onChange={handleChange("instructionText")}
                         style={{ width: "100%" }}
                       ></textarea>
                       {/* <TextField value={dialogHeader} onChange={setDialogHeader} /> */}
@@ -458,7 +450,7 @@ useEffect(() => {
                     <Box width="250px">
                       <TextField
                         value={designsettings.confirmText}
-                        onChange={handleChange('confirmText')}
+                        onChange={handleChange("confirmText")}
                         style={{
                           maxWidth: "100%",
                         }}
@@ -492,7 +484,7 @@ useEffect(() => {
                     <Box width="250px">
                       <TextField
                         value={designsettings.updatingText}
-                        onChange={handleChange('updatingText')}
+                        onChange={handleChange("updatingText")}
                         style={{
                           maxWidth: "100%",
                         }}
@@ -527,7 +519,7 @@ useEffect(() => {
                     <Box width="250px">
                       <TextField
                         value={designsettings.closeText}
-                        onChange={handleChange('closeText')}
+                        onChange={handleChange("closeText")}
                         style={{
                           maxWidth: "100%",
                         }}
@@ -562,7 +554,7 @@ useEffect(() => {
                     <Box width="250px">
                       <TextField
                         value={designsettings.errorText}
-                        onChange={handleChange('errorText')}
+                        onChange={handleChange("errorText")}
                         style={{
                           maxWidth: "100%",
                         }}
@@ -611,7 +603,7 @@ useEffect(() => {
                       color: "#333333",
                       margin: "25px 0 5px 0",
                       fontFamily: "sans-serif",
-                      textAlign: 'center'
+                      textAlign: "center",
                     }}
                   >
                     {designsettings.dialogHeader}
@@ -704,7 +696,9 @@ useEffect(() => {
                               stroke-width="2"
                             />
                           </svg>
-                          <span class="close-text">{designsettings.closeText}</span>
+                          <span class="close-text">
+                            {designsettings.closeText}
+                          </span>
                         </button>
                       </Box>
                     </InlineStack>
@@ -714,32 +708,51 @@ useEffect(() => {
             </Box>
           </Box>
         </Box>
-
         {/* 3rd row Main Parent Div */}
-
-        <hr style={{ border: "1px solid #E1E1E1", margin: "8px 0", width: '40%' }} />
-
+        {/* <hr
+          style={{ border: "1px solid #E1E1E1", margin: "8px 0", width: "40%" }}
+        /> */}
         <Box
           style={{
-            width: "40%",
+            width: "45%",
             gap: "10px",
             display: "flex",
-            justifyContent: "flex-end",
+            flexDirection: "column", // Stack buttons and message vertically
+            alignItems: "flex-end", // Align items to the right
             marginTop: "20px",
             marginBottom: "20px",
+            marginLeft: "20px"
           }}
         >
-                    <button>Cancel</button>
-          <button className="submit-btn text-white py-2 px-4" onClick={handleSave}>
-                        {loading ? 'Saving...' : 'Save'}
-                    </button>
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button>Cancel</button>
+            <button
+              className="submit-btn text-white py-2 px-4"
+              onClick={handleSave}
+              disabled={loading} // Disable button while saving
+            >
+              {loading ? "Saving..." : "Save"}
+            </button>
+          </div>
 
-                    {/* Success Message */}
-                    {successMessage && (
-                        <div style={{ marginTop: '20px', color: 'green' }}>
-                            {successMessage}
-                        </div>
-                    )}
+          {/* Success Message */}
+          {successMessage && (
+            <Box
+              style={{
+                marginTop: "10px",
+                padding: "10px",
+                backgroundColor: "#d4edda", // Light green background
+                color: "#155724", // Dark green text
+                border: "1px solid #c3e6cb", // Light green border
+                borderRadius: "4px",
+                textAlign: "center",
+                width: "100%", // Ensure it spans the full width of the container
+              }}
+            >
+              {successMessage}
+            </Box>
+          )}
         </Box>
         <br /> <br />
       </Box>

@@ -31,6 +31,7 @@ model Session {
   emailVerified Boolean?  @default(false)
   settings      ShopSettings?
   designSettings DesignSettings? 
+  timeLimit       TimeLimit?
 }
 
 model ShopSettings {
@@ -69,4 +70,38 @@ model DesignSettings {
     selectedCountries       String
     shop                    String   @unique 
     session                 Session  @relation(fields: [shop], references: [shop]) 
+}
+
+model TimeLimit {
+  id                     Int      @id @default(autoincrement())
+  addressEditTimeLimit   Boolean
+  onHold                 Boolean
+  partiallyFulfilled     Boolean
+  partiallyRefunded      Boolean
+  mondayEnabled          Boolean
+  mondayStart            String   // Time in HH:mm format
+  mondayEnd              String   // Time in HH:mm format
+  tuesdayEnabled         Boolean
+  tuesdayStart           String   // Time in HH:mm format
+  tuesdayEnd             String   // Time in HH:mm format
+  wednesdayEnabled       Boolean
+  wednesdayStart         String   // Time in HH:mm format
+  wednesdayEnd           String   // Time in HH:mm format
+  thursdayEnabled        Boolean
+  thursdayStart          String   // Time in HH:mm format
+  thursdayEnd            String   // Time in HH:mm format
+  fridayEnabled          Boolean
+  fridayStart            String   // Time in HH:mm format
+  fridayEnd              String   // Time in HH:mm format
+  saturdayEnabled        Boolean
+  saturdayStart          String   // Time in HH:mm format
+  saturdayEnd            String   // Time in HH:mm format
+  sundayEnabled          Boolean
+  sundayStart            String   // Time in HH:mm format
+  sundayEnd              String   // Time in HH:mm format
+  timeLimitsDays         String   // Store as string (e.g., "3")
+  timeLimitsHours        String   // Store as string (e.g., "03")
+  timeLimitsMinutes      String   // Store as string (e.g., "03")
+  shop                   String   @unique
+  session                Session  @relation(fields: [shop], references: [shop])  
 }

@@ -75,7 +75,7 @@ export { address_btn_edit };
 // Edit Address Button Component
 function EditAddressButton() {
 
-  const app_url = 'https://posted-attributes-flexibility-theory.trycloudflare.com';   // keep changing this url after every deployment
+  const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com';   // keep changing this url after every deployment
   const {query} = useApi();
 
   // useEffect(() => {
