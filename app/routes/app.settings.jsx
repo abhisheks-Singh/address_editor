@@ -11,6 +11,7 @@ import {
 import { useState, useCallback, useEffect } from "react";
 import { useLoaderData } from '@remix-run/react';
 import {authenticate} from '../shopify.server';
+import app_url from "./assets/app_url";
 
 export const loader = async ({ request }) => {
     try {
@@ -39,7 +40,7 @@ export const loader = async ({ request }) => {
 
 function SettingsPage() {
 
-    const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com'; // on shopify dev command it keep on changing
+    // const app_url = 'https://optimize-zone-thousand-showtimes.trycloudflare.com'; // on shopify dev command it keep on changing
     const { shopDomain, backendUrl } = useLoaderData();
 
     console.log("Shop Domain:", shopDomain);
@@ -547,7 +548,7 @@ const fetchSettings = async () => {
           </Box>
         </Box>
         <br /> <br />
-        <Box marginTop="30px" class="ship-station">
+        {/* <Box marginTop="30px" class="ship-station">
           <h1 style={{ fontSize: "20px" }}>ShipStation Sync</h1>
           <Box
             style={{
@@ -628,7 +629,8 @@ const fetchSettings = async () => {
             </Box>
           </Box>
           <hr style={{ marginRight: "350px" }} />
-        </Box>
+        </Box> */}
+         <hr style={{ marginRight: "350px" }} />
       </Box>
 
       <Box

@@ -24,6 +24,7 @@ import { InlineLayout, View } from "@shopify/ui-extensions-react/checkout";
 import { useLoaderData } from "@remix-run/react";
 import "./assets/custom.css";
 import { authenticate } from "../shopify.server";
+import  app_url  from "./assets/app_url";
 
 const CountrySelector = ({ selectedCountries, onChange }) => {
   const [active, setActive] = useState(false);
@@ -45,7 +46,7 @@ const CountrySelector = ({ selectedCountries, onChange }) => {
           ]}
           selected={selectedCountries}
           onChange={onChange}
-          allowMultiple={false} // Change to true if you want multiple selections
+          allowMultiple={true} // Change to true if you want multiple selections
         />
       </Popover>
     </Box>
@@ -54,10 +55,15 @@ const CountrySelector = ({ selectedCountries, onChange }) => {
 
 export const loader = async ({ request }) => {
   try {
+
     const main_session = await authenticate.admin(request);
     const session = main_session.session;
 
     const shopDomain = session?.shop;
+
+    // const app_url = process.env.SHOPIFY_APP_URL;
+
+
     // console.log("Shop Domain:", shopDomain);
     // console.log("Session:", session);
     // console.log("Main Session:", main_session);
@@ -68,7 +74,7 @@ export const loader = async ({ request }) => {
 
     const backendUrl = `https://${shopDomain}/apps/proxy/settings_new`;
 
-    return { shopDomain, backendUrl }; // Return relevant data
+    return { shopDomain, backendUrl, app_url }; // Return relevant data
   } catch (error) {
     console.error("Error retrieving session:", error);
     throw new Response("Internal Server Error", { status: 500 });
@@ -76,8 +82,8 @@ export const loader = async ({ request }) => {
 };
 
 function DesignPage() {
-  const app_url = "https://automobiles-preston-lot-instant.trycloudflare.com"; // on shopify dev command it keep on changing
-  const { shopDomain, backendUrl } = useLoaderData();
+  // const app_url = "https://optimize-zone-thousand-showtimes.trycloudflare.com"; // on shopify dev command it keep on changing
+  const { shopDomain, backendUrl, app_url } = useLoaderData();
 
   console.log("Shop Domain:", shopDomain);
   console.log("App URL:", backendUrl);
@@ -135,6 +141,7 @@ function DesignPage() {
   const handleSave = async () => {
     const savedData = {
       ...designsettings,
+      selectedCountries: JSON.stringify(designsettings.selectedCountries),
       shopDomain,
       dataType: "design", // Specify data type for differentiation
     };

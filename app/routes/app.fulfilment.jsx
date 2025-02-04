@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import "./assets/custom.css";
 import { authenticate } from "../shopify.server";
 import { useLoaderData } from "@remix-run/react";
+import  app_url  from "./assets/app_url";
 
 export const loader = async ({ request }) => {
     try {
@@ -20,7 +21,7 @@ export const loader = async ({ request }) => {
   
         const backendUrl = `https://${shopDomain}/apps/proxy/settings_new`; 
   
-        return { shopDomain, backendUrl}; // Return relevant data
+        return { shopDomain, backendUrl, app_url}; // Return relevant data
     } catch (error) {
         console.error("Error retrieving session:", error);
         throw new Response('Internal Server Error', { status: 500 });
@@ -30,9 +31,13 @@ export const loader = async ({ request }) => {
 function FulfillmentPage() {
 
     const { shopDomain } = useLoaderData();
-    console.log("Shop Domain:", shopDomain);
 
-    const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com'; // on shopify dev command it keep on changing
+    
+
+    console.log("Shop Domain:", shopDomain, 'app url ', app_url);
+    
+
+    // const app_url = 'https://optimize-zone-thousand-showtimes.trycloudflare.com'; // on shopify dev command it keep on changing
 
 
   const [currentTime, setCurrentTime] = useState("");
@@ -62,6 +67,7 @@ function FulfillmentPage() {
   const [loading, setLoading] = useState(false);
    const [successMessage, setSuccessMessage] = useState("");
 
+   // onHold Option 
    
 
   // options :
@@ -94,37 +100,70 @@ function FulfillmentPage() {
   const fulfillment_fetch = async () => {
     try {
         const response = await fetch(`${app_url}/api/settings_new?shop=${shopDomain}`);
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status: ${response.status}`);
+        }
+
         const data = await response.json();
-        const { timeLimits } = data; 
-  
+        const timeLimits = data.timeLimits ?? {};  // Ensure `timeLimits` is at least an empty object
+
         console.log('timeLimits Settings:', timeLimits);
-  
-        // Update settings state with fetched design settings
+
         setFulfillment((prevSettings) => ({
             ...prevSettings,
-            addressEditTimeLimit: timeLimits.addressEditTimeLimit,
-            onHold: timeLimits.onHold,
-            partiallyFulfilled: timeLimits.partiallyFulfilled,
-            partiallyRefunded: timeLimits.partiallyRefunded,
+            addressEditTimeLimit: timeLimits.addressEditTimeLimit ?? false,
+            onHold: timeLimits.onHold ?? false,
+            partiallyFulfilled: timeLimits.partiallyFulfilled ?? false,
+            partiallyRefunded: timeLimits.partiallyRefunded ?? false,
             dailyFulfillment: {
-                monday: { enabled: timeLimits.mondayEnabled, start: timeLimits.mondayStart, end: timeLimits.mondayEnd },
-                tuesday: { enabled: timeLimits.tuesdayEnabled, start: timeLimits.tuesdayStart, end: timeLimits.tuesdayEnd },
-                wednesday: { enabled: timeLimits.wednesdayEnabled, start: timeLimits.wednesdayStart, end: timeLimits.wednesdayEnd },
-                thursday: { enabled: timeLimits.thursdayEnabled, start: timeLimits.thursdayStart, end: timeLimits.thursdayEnd },
-                friday: { enabled: timeLimits.fridayEnabled, start: timeLimits.fridayStart, end: timeLimits.fridayEnd },
-                saturday: { enabled: timeLimits.saturdayEnabled, start: timeLimits.saturdayStart, end: timeLimits.saturdayEnd },
-                sunday: { enabled: timeLimits.sundayEnabled, start: timeLimits.sundayStart, end: timeLimits.sundayEnd },
+                monday: {
+                    enabled: timeLimits.mondayEnabled ?? false,
+                    start: timeLimits.mondayStart ?? "00:00",
+                    end: timeLimits.mondayEnd ?? "23:59"
+                },
+                tuesday: {
+                    enabled: timeLimits.tuesdayEnabled ?? false,
+                    start: timeLimits.tuesdayStart ?? "00:00",
+                    end: timeLimits.tuesdayEnd ?? "23:59"
+                },
+                wednesday: {
+                    enabled: timeLimits.wednesdayEnabled ?? false,
+                    start: timeLimits.wednesdayStart ?? "00:00",
+                    end: timeLimits.wednesdayEnd ?? "23:59"
+                },
+                thursday: {
+                    enabled: timeLimits.thursdayEnabled ?? false,
+                    start: timeLimits.thursdayStart ?? "00:00",
+                    end: timeLimits.thursdayEnd ?? "23:59"
+                },
+                friday: {
+                    enabled: timeLimits.fridayEnabled ?? false,
+                    start: timeLimits.fridayStart ?? "00:00",
+                    end: timeLimits.fridayEnd ?? "23:59"
+                },
+                saturday: {
+                    enabled: timeLimits.saturdayEnabled ?? false,
+                    start: timeLimits.saturdayStart ?? "00:00",
+                    end: timeLimits.saturdayEnd ?? "23:59"
+                },
+                sunday: {
+                    enabled: timeLimits.sundayEnabled ?? false,
+                    start: timeLimits.sundayStart ?? "00:00",
+                    end: timeLimits.sundayEnd ?? "23:59"
+                }
             },
             timeLimits: {
-                days: timeLimits.timeLimitsDays,
-                hours: timeLimits.timeLimitsHours,
-                minutes: timeLimits.timeLimitsMinutes,
+                days: timeLimits.timeLimitsDays ?? "00",
+                hours: timeLimits.timeLimitsHours ?? "00",
+                minutes: timeLimits.timeLimitsMinutes ?? "00",
             },
         }));
     } catch (error) {
         console.error("Error fetching design settings:", error);
     }
-  };
+};
+
 
   useEffect(() => {
     const timezone = "Asia/Kolkata"; // Updated to IST
@@ -388,7 +427,7 @@ function FulfillmentPage() {
           >
             Daily Fulfillment Time
           </h2>
-          <p style={{ color: "rgb(107 114 128)" }}>
+          <p style={{ color: "rgb(107 114 128)", marginBottom: "20px" }}>
             In 24 hours format, check the checkbox on the left to enable
             fulfillment time on that day.
           </p>
@@ -497,8 +536,8 @@ function FulfillmentPage() {
                   <hr
                     className="day-divider"
                     style={{
-                      margin: "20px 0 5px 15px",
-                      width: "100%",
+                      margin: "20px 0px 5px 0px",
+                      width: "97%",
                       borderColor: "#e5e7eb",
                     }}
                   />

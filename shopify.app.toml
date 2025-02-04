@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "6b3ae84447781284d6f448cf4fe72441"
-application_url = "https://automobiles-preston-lot-instant.trycloudflare.com"
+application_url = "https://evaluate-assess-writing-revolution.trycloudflare.com"
 embedded = true
 name = "AddressEase"
 handle = "addressease"
@@ -24,17 +24,17 @@ api_version = "2025-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_content,read_customer_events,read_customers,read_orders,read_products,write_customers,write_orders,write_products"
+scopes = "read_content,read_customer_events,read_customers,read_orders,read_products,write_customers,write_orders,write_third_party_fulfillment_orders,read_third_party_fulfillment_orders,read_merchant_managed_fulfillment_orders,write_merchant_managed_fulfillment_orders,read_assigned_fulfillment_orders,write_assigned_fulfillment_orders"
 
 [auth]
 redirect_urls = [
-  "https://automobiles-preston-lot-instant.trycloudflare.com/auth/callback",
-  "https://automobiles-preston-lot-instant.trycloudflare.com/auth/shopify/callback",
-  "https://automobiles-preston-lot-instant.trycloudflare.com/api/auth/callback"
+  "https://evaluate-assess-writing-revolution.trycloudflare.com/auth/callback",
+  "https://evaluate-assess-writing-revolution.trycloudflare.com/auth/shopify/callback",
+  "https://evaluate-assess-writing-revolution.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://automobiles-preston-lot-instant.trycloudflare.com/api"
+url = "https://evaluate-assess-writing-revolution.trycloudflare.com/api"
 subpath = "proxy"
 prefix = "apps"
 

@@ -12,7 +12,7 @@ useStorage,
 TextField,
 Modal,
 TextBlock,
-useApi, 
+useApi,  
 useOrder,
 useShippingAddress,
 useCustomer,
@@ -75,7 +75,7 @@ export { address_btn_edit };
 // Edit Address Button Component
 function EditAddressButton() {
 
-  const app_url = 'https://automobiles-preston-lot-instant.trycloudflare.com';   // keep changing this url after every deployment
+   const app_url = 'https://evaluate-assess-writing-revolution.trycloudflare.com';   // keep changing this url after every deployment
   const {query} = useApi();
 
   // useEffect(() => {
@@ -107,7 +107,9 @@ function EditAddressButton() {
   const ShippingAddress = useShippingAddress();
 
   // console.log('address data ', address_data);
-  console.log('billing address ', ShippingAddress);
+  console.log('shipping address ', ShippingAddress);
+
+
 
 
   // console.log(`order id is ${order.id}`);
@@ -140,10 +142,24 @@ function EditAddressButton() {
     phone: ShippingAddress.phone || '',
     orderId: order.id,
     shop: shop.myshopifyDomain
+
   });
 
   const [modalSettings, setModalSettings] = useState({});
   const [editableFields, setEditableFields] = useState({});
+  // is on Hold state 
+  const [onHold, setOnHold] = useState(false);
+
+  // mutable data 
+  const [mutData, setMutData]= useState({
+    mutState: ShippingAddress.provinceCode,
+    mutCountry: ShippingAddress.countryCode
+
+  })
+
+  // can edit address : 
+
+  const [canEditAddress, setCanEditAddress] = useState(true);
 
   const fetchSettings = async () => {
     try {
@@ -151,8 +167,11 @@ function EditAddressButton() {
       const data = await response.json();
       const { shopSettings } = data;
       const {designSettings} = data;
+      const {timeLimits} = data;
+      const onHOld = timeLimits.onHold;
+      console.log('on HOld data ', onHOld)
       
-      console.log('checking data  ', data.shopSettings); 
+      console.log('checking data  ', data.shopSettings, 'time limits data ', timeLimits); 
       setEditableFields({
         email: shopSettings.allowEmailChange, 
         city: shopSettings.allowCityChange,
@@ -170,6 +189,25 @@ function EditAddressButton() {
         selectedCountries : designSettings.selectedCountries || ['coun1']
 
       });
+      setOnHold(timeLimits.onHold);
+
+      if (timeLimits.addressEditTimeLimit) {
+        const processedAt = new Date(order.processedAt);
+        const timeLimitDays = parseInt(timeLimits.timeLimitsDays) || 0;
+        const timeLimitHours = parseInt(timeLimits.timeLimitsHours) || 0;
+        const timeLimitMinutes = parseInt(timeLimits.timeLimitsMinutes) || 0;
+
+        // Calculate total time limit in milliseconds
+        const totalTimeLimit = (timeLimitDays * 24 * 60 * 60 * 1000) +
+                               (timeLimitHours * 60 * 60 * 1000) +
+                               (timeLimitMinutes * 60 * 1000);
+
+        // Calculate the cut-off date for editing
+        const cutOffDate = new Date(processedAt.getTime() + totalTimeLimit);
+        
+        // Check if current date is before cut-off date
+        setCanEditAddress(new Date() <= cutOffDate);
+      }
 
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -197,65 +235,102 @@ function EditAddressButton() {
 
   const handleSubmit = async () => {
     // Handle form submission logic here
-    console.log('Submitted form data:', formData);
+    console.log("Submitted form data:", formData);
 
     try {
       const response = await fetch(`${app_url}/api/backend`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData), // Convert formData to JSON
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // Convert formData to JSON
       });
 
       if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+        throw new Error(`Error: ${response.statusText}`);
       }
 
       const responseData = await response.json();
-      // response json looks like : 
 
-    //   {
-    //     "success": true,
-    //     "order": {
-    //         "id": "gid://shopify/Order/5766048645189",
-    //         "shippingAddress": {
-    //             "firstName": "Abhishekk",
-    //             "lastName": "Singhh",
-    //             "address1": "123 New Streett",
-    //             "city": "New York",
-    //             "province": "New York",
-    //             "zip": "10004"
-    //         }
-    //     }
-    // }
+      if (responseData.success && responseData.order?.shippingAddress) {
+        
+        const previousState = mutData.mutState;
+        const previousCountry = mutData.mutCountry;
 
-    if (responseData.success && responseData.order?.shippingAddress) {
-      setFormData((prevData) => ({
-        ...prevData,
-        first_name: responseData.order.shippingAddress.firstName || prevData.first_name,
-        last_name: responseData.order.shippingAddress.lastName || prevData.last_name,
-        address1: responseData.order.shippingAddress.address1 || prevData.address1,
-        city: responseData.order.shippingAddress.city || prevData.city,
-        state: responseData.order.shippingAddress.province || prevData.state,
-        zip: responseData.order.shippingAddress.zip || prevData.zip,
-      }));
-    }
+        if (onHold) {
+          const newState = formData.state;
+          const newCountry = formData.country;
+          console.log(`new state ${newState} and new country ${newCountry}, old state ${previousState} and previous country ${previousCountry}`);
 
-    console.log('Updated form data:', formData);
 
-      console.log('Response from server:', responseData);
-      
-  } catch (error) {
+
+          if (previousState !== newState || previousCountry !== newCountry) {
+            console.log('State or country has changed, running handleMutation...');
+            await handleMutation();
+          }
+        }
+
+
+        setFormData((prevData) => ({
+          ...prevData,
+          first_name:
+            responseData.order.shippingAddress.firstName || prevData.first_name,
+          last_name:
+            responseData.order.shippingAddress.lastName || prevData.last_name,
+          address1:
+            responseData.order.shippingAddress.address1 || prevData.address1,
+          city: responseData.order.shippingAddress.city || prevData.city,
+          state: responseData.order.shippingAddress.province || prevData.state,
+          zip: responseData.order.shippingAddress.zip || prevData.zip,
+        }));
+        
+        // console.log('previous data is ')
+        console.log(`previous state ${previousState} and and response state ${responseData.order.shippingAddress.provinceCode}`)
+      }
+
+      console.log("Updated form data:", formData);
+
+      console.log("Response from server:", responseData);
+      // if (onHold) {
+      //   console.log('if scope ');
+      //   await handleMutation();
+      // }
+    } catch (error) {
       console.error("Error submitting form:", error);
-  } finally {
-      ui.overlay.close('my-modal'); // Close the modal after submission
-  }
-    ui.overlay.close('my-modal');
+    } finally {
+      ui.overlay.close("my-modal"); // Close the modal after submission
+    }
+    ui.overlay.close("my-modal");
   };
 
+  // handle mutation 
+  const handleMutation = async () => {
+    console.log('mutatation fn ran or not ');
+   // Add a condition type to formData for mutation
+   const mutationFormData = {
+     ...formData,
+     conditionType: 'mutation', // Example condition type for mutation
+   };
+ 
+   try {
+     const mutationResponse = await fetch(`${app_url}/api/fulfillment`, {
+       method: 'POST', 
+       headers: {
+         'Content-Type': 'application/json',
+       },
+       body: JSON.stringify(mutationFormData), // Convert mutationFormData to JSON
+     });
+ 
+     if (!mutationResponse.ok) throw new Error(`Error in mutation: ${mutationResponse.statusText}`);
+     
+     console.log('Mutation executed successfully');
+   } catch (error) {
+     console.error("Error executing mutation:", error);
+   }
+ };
   return (
     <BlockStack spacing="tight">
+      {canEditAddress && (
     <Button
       overlay={
         <Modal id="my-modal" padding title={modalSettings.headerText}>
@@ -358,7 +433,7 @@ function EditAddressButton() {
      {isFormVisible ? modalSettings.errorText : modalSettings.buttonText}
 
     </Button>
-  
+     )}
   </BlockStack>
   
   );

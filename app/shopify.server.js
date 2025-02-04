@@ -7,6 +7,8 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
+// const APP_URL = process.env.SHOPIFY_APP_URL || "";
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
@@ -33,6 +35,8 @@ export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
+
+
 // export async function getAccessToken(request) {
 //     const session = await sessionStorage.loadSession(request.headers.get('Cookie'));
 //     return session.get('accessToken'); // Adjust based on how you store the token
