@@ -1,4 +1,4 @@
-import { Box, Checkbox, Select } from "@shopify/polaris";
+import { Box, Button, Checkbox, Select } from "@shopify/polaris";
 import { useCallback, useEffect, useState } from "react";
 import "./assets/custom.css";
 import { authenticate } from "../shopify.server";
@@ -11,7 +11,7 @@ export const loader = async ({ request }) => {
         const session = main_session.session; 
   
         const shopDomain = session?.shop; 
-        console.log("Shop Domain from fulFillment page:", shopDomain);
+        console.log("Shop Domain from fulFillment page app side:", shopDomain);
         // console.log("Session:", session);
         // console.log("Main Session:", main_session);
   
@@ -664,10 +664,10 @@ function FulfillmentPage() {
     marginBottom: "20px",
   }}
 >
-  <button className="cancel-button">Cancel</button>
-  <button className="submit-btn text-white py-2 px-4" onClick={handleSubmit}>
+  <Button  className="cancel-button">Cancel</Button>
+  <Button variant="primary" className="submit-btn text-white py-2 px-4" onClick={handleSubmit}>
     Save
-  </button>
+  </Button>
 </Box>
 
 {/* Success Message Section */}

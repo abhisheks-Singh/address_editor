@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "6b3ae84447781284d6f448cf4fe72441"
-application_url = "https://evaluate-assess-writing-revolution.trycloudflare.com"
+application_url = "https://aa-granted-core-pixels.trycloudflare.com"
 embedded = true
 name = "AddressEase"
 handle = "addressease"
@@ -28,13 +28,13 @@ scopes = "read_content,read_customer_events,read_customers,read_orders,read_prod
 
 [auth]
 redirect_urls = [
-  "https://evaluate-assess-writing-revolution.trycloudflare.com/auth/callback",
-  "https://evaluate-assess-writing-revolution.trycloudflare.com/auth/shopify/callback",
-  "https://evaluate-assess-writing-revolution.trycloudflare.com/api/auth/callback"
+  "https://aa-granted-core-pixels.trycloudflare.com/auth/callback",
+  "https://aa-granted-core-pixels.trycloudflare.com/auth/shopify/callback",
+  "https://aa-granted-core-pixels.trycloudflare.com/api/auth/callback"
 ]
 
 [app_proxy]
-url = "https://evaluate-assess-writing-revolution.trycloudflare.com/api"
+url = "https://aa-granted-core-pixels.trycloudflare.com/api"
 subpath = "proxy"
 prefix = "apps"
 

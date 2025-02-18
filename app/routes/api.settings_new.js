@@ -7,12 +7,12 @@ import { url } from 'inspector';
 export async function loader({ request }) {
   let shopDomain = request.headers.get('x-forwarded-host'); 
   let host = request.headers.get('host');
-  console.log('Host:', host);
+//   console.log('Host:', host);
 
   if (!shopDomain) {
       const parsedUrl = new URL(request.url);
       shopDomain = parsedUrl.searchParams.get("shop"); 
-      console.log('Shop Domain from URL:', shopDomain);
+    //   console.log('Shop Domain from URL:', shopDomain);
   }
 
   const headersObject = {};
@@ -21,7 +21,7 @@ export async function loader({ request }) {
   });
 
   // Log all headers
-  console.log('All Headers:', headersObject);
+//   console.log('All Headers:', headersObject);
 
   // Fetch existing shop settings
   const existingSettings = await prisma.shopSettings.findUnique({

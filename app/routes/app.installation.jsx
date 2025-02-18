@@ -99,7 +99,7 @@ export default function InstallationPage() {
        Step 1a - Checkout Extensibility widget
       </h1>
 
-      <p class="prose prose-blue" style={{fontSize:'18px'}}>
+      <p class="prose prose-blue" style={{fontSize:'18px', maxWidth: '65ch'}}>
         <br/> <br/>
         As you have enabled the Checkout Extensibility for Thank you page and Order status page, you will need to add the Edit Address widget in the theme editor.
         <br/> <br/>

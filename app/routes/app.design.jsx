@@ -186,7 +186,7 @@ function DesignPage() {
   }, []);
 
   return (
-    <Box class="main-container-design" paddingInlineStart="500">
+    <Box paddingInlineStart="500">
       {/* Main Parent Div */}
       <Box style={{ display: "flex" }}>
         {/* 1st row Main Parent Div */}
@@ -236,7 +236,7 @@ function DesignPage() {
         </Box>
 
         {/* Second Column - Form Card */}
-        <Box style={{ width: "50%" }}>
+        <Box style={{ width: "50%", marginLeft: '50px' }}>
           {/* <Card sectioned style={{ width: "50%" }}> */}
           <Form method="POST">
             <Box gap="400" class="px-4">
@@ -260,8 +260,10 @@ function DesignPage() {
                 This is what your customer sees on the order status page after
                 completing checkout
               </h2>
-              <Box style={{ marginLeft: "10px" }}>
-                <div class="customer-information-card">
+              <Box style={{ marginLeft: "0" }}>
+                <Box class="customer-information-card">
+                  <Box style={{padding: "10px"}}>
+
                   <h2
                     style={{
                       fontSize: "1.3em",
@@ -343,7 +345,8 @@ function DesignPage() {
                       </Box>
                     </Box>
                   </Box>
-                </div>
+                  </Box>
+                </Box>
               </Box>
             </Box>
           </Form>
@@ -425,7 +428,7 @@ function DesignPage() {
                       <textarea
                         value={designsettings.instructionText}
                         onChange={handleChange("instructionText")}
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", padding: "10px"}}
                       ></textarea>
                       {/* <TextField value={dialogHeader} onChange={setDialogHeader} /> */}
                     </Box>
@@ -578,7 +581,7 @@ function DesignPage() {
           </Box>
 
           {/* Second Column - Form Card */}
-          <Box style={{ width: "50%" }}>
+          <Box style={{ width: "50%", marginLeft: "50px" }}>
             <Box gap="400" class="px-4">
               <h1
                 style={{
@@ -601,8 +604,9 @@ function DesignPage() {
                 will be shown (address fields might varies depending on country)
               </h2>
 
-              <Box style={{ marginLeft: "10px" }}>
-                <div className="customer-information-card">
+              <Box style={{ }}>
+                <Box className="customer-information-card">
+                  <Box style={{padding: "10px"}}>
                   <h2
                     style={{
                       fontSize: "1.3em",
@@ -710,7 +714,8 @@ function DesignPage() {
                       </Box>
                     </InlineStack>
                   </Box>
-                </div>
+                  </Box>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -728,7 +733,7 @@ function DesignPage() {
             alignItems: "flex-end", // Align items to the right
             marginTop: "20px",
             marginBottom: "20px",
-            marginLeft: "20px"
+            marginLeft: "0"
           }}
         >
           {/* Buttons */}
